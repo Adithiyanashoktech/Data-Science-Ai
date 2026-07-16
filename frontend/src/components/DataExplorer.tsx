@@ -261,10 +261,10 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({ onDatasetSelected, t
         <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
           {/* Custom Ticker Query Card */}
           <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-            <h3 style={{ fontSize: "1.25rem", color: "var(--text-primary)" }}>Global Markets Query</h3>
+            <h3 style={{ fontSize: "1.25rem", color: "var(--text-primary)" }}>Global Markets & Economics</h3>
             <div className="glass-card" style={{ padding: "1.25rem", backgroundColor: "var(--bg-secondary)", display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <p style={{ fontSize: "0.825rem", color: "var(--text-secondary)" }}>
-                Query stock prices and indices from international markets (e.g. India, UK, Japan) using Yahoo Finance tickers.
+              <p style={{ fontSize: "0.825rem", color: "var(--text-secondary)", lineHeight: "1.4" }}>
+                Query stocks (e.g. <code>RELIANCE.NS</code>, <code>BP.L</code>), indices (e.g. <code>^NSEI</code>), or macroeconomic indicators for any country using the format <code>[COUNTRY]_[INDICATOR]</code> (e.g. <code>IN_GDP</code>, <code>GB_INFLATION</code>, <code>CN_UNEMPLOYMENT</code>).
               </p>
               
               <div style={{ display: "flex", gap: "0.5rem" }}>

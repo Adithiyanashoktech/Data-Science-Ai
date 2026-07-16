@@ -278,7 +278,7 @@ class DataService:
         try:
             import httpx
             async with httpx.AsyncClient() as client:
-                response = await client.get(url, timeout=10.0)
+                response = await client.get(url, timeout=10.0, follow_redirects=True)
                 if response.status_code != 200:
                     raise Exception(f"World Bank API error: {response.status_code}")
                 
@@ -424,6 +424,36 @@ class DataService:
             title = f"{dataset_id.split('-')[0]} Cryptocurrency"
             source = "Yahoo Finance"
             category = "Crypto"
+        elif len(dataset_id.split('_')) == 2 and dataset_id.split('_')[1] in ["GDP", "INFLATION", "UNEMPLOYMENT"]:
+            parts = dataset_id.split('_')
+            country_code = parts[0].lower()
+            indicator_type = parts[1]
+            
+            indicator_map = {
+                "GDP": "NY.GDP.MKTP.CD",
+                "INFLATION": "FP.CPI.TOTL.ZG",
+                "UNEMPLOYMENT": "SL.UEM.TOTL.ZS"
+            }
+            indicator = indicator_map[indicator_type]
+            
+            df = await self.fetch_worldbank_data(indicator, country_code)
+            
+            country_names = {
+                "in": "India", "cn": "China", "gb": "United Kingdom", "jp": "Japan", 
+                "de": "Germany", "fr": "France", "ca": "Canada", "au": "Australia", 
+                "br": "Brazil", "za": "South Africa", "ru": "Russia", "us": "United States",
+                "eu": "Euro Area", "wld": "World"
+            }
+            country_display = country_names.get(country_code, country_code.upper())
+            
+            title_map = {
+                "GDP": f"{country_display} Gross Domestic Product GDP",
+                "INFLATION": f"{country_display} Inflation Rate Annual %",
+                "UNEMPLOYMENT": f"{country_display} Unemployment Rate"
+            }
+            title = title_map[indicator_type]
+            source = "World Bank"
+            category = "Economics"
         elif dataset_id in ["TSLA", "AAPL", "NVDA", "SPY"] or "." in dataset_id or dataset_id.startswith("^") or len(dataset_id) <= 6:
             df = await self.fetch_stock_data(dataset_id, period)
             if dataset_id.endswith(".NS"):
@@ -436,21 +466,6 @@ class DataService:
                 title = f"{dataset_id} Stock Market Data"
             source = "Yahoo Finance"
             category = "Financials"
-        elif dataset_id == "US_GDP":
-            df = await self.worldbank_data_indicator("NY.GDP.MKTP.CD")
-            title = "United States Gross Domestic Product GDP"
-            source = "World Bank"
-            category = "Economics"
-        elif dataset_id == "US_INFLATION":
-            df = await self.worldbank_data_indicator("FP.CPI.TOTL.ZG")
-            title = "United States Inflation Rate Annual %"
-            source = "World Bank"
-            category = "Economics"
-        elif dataset_id == "US_UNEMPLOYMENT":
-            df = await self.worldbank_data_indicator("SL.UEM.TOTL.ZS")
-            title = "United States Unemployment Rate"
-            source = "World Bank"
-            category = "Economics"
         elif dataset_id == "FREMONT_HOUSING":
             df = generate_fremont_housing_data()
             title = "Fremont Housing Market Trends"
