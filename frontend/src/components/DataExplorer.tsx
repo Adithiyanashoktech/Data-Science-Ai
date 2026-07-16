@@ -23,6 +23,35 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({ onDatasetSelected, t
   const [uploadError, setUploadError] = useState("");
   const [uploadSuccess, setUploadSuccess] = useState("");
   
+  const [customTicker, setCustomTicker] = useState("");
+  const [loadingTicker, setLoadingTicker] = useState(false);
+  const [tickerError, setTickerError] = useState("");
+  
+  const loadCustomTicker = async (tickerSymbol: string) => {
+    if (!tickerSymbol.trim()) return;
+    setLoadingTicker(true);
+    setTickerError("");
+    try {
+      const res = await fetch(`/api/datasets/${tickerSymbol.trim().toUpperCase()}`);
+      if (!res.ok) {
+        throw new Error(`Ticker "${tickerSymbol}" was not found or is unsupported.`);
+      }
+      const data = await res.json();
+      onDatasetSelected(tickerSymbol.trim().toUpperCase(), {
+        dataset_id: data.dataset_id,
+        title: data.title,
+        source: data.source,
+        category: data.category,
+        columns: data.columns,
+        length: data.length
+      }, data.data);
+    } catch (err: any) {
+      setTickerError(err.message || "Failed to load ticker data");
+    } finally {
+      setLoadingTicker(false);
+    }
+  };
+
   const categories = ["All", "Financials", "Crypto", "Economics", "Real Estate", "Climate"];
 
   useEffect(() => {
@@ -228,9 +257,73 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({ onDatasetSelected, t
           </div>
         </div>
 
-        {/* Upload Column */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <h3 style={{ fontSize: "1.25rem", color: "var(--text-primary)" }}>Ingest Custom File</h3>
+        {/* Right Sidebar: Query Ticker and Upload File */}
+        <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
+          {/* Custom Ticker Query Card */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <h3 style={{ fontSize: "1.25rem", color: "var(--text-primary)" }}>Global Markets Query</h3>
+            <div className="glass-card" style={{ padding: "1.25rem", backgroundColor: "var(--bg-secondary)", display: "flex", flexDirection: "column", gap: "1rem" }}>
+              <p style={{ fontSize: "0.825rem", color: "var(--text-secondary)" }}>
+                Query stock prices and indices from international markets (e.g. India, UK, Japan) using Yahoo Finance tickers.
+              </p>
+              
+              <div style={{ display: "flex", gap: "0.5rem" }}>
+                <input
+                  type="text"
+                  className="form-input"
+                  placeholder="e.g. RELIANCE.NS, ^NSEI, BP.L"
+                  value={customTicker}
+                  onChange={(e) => setCustomTicker(e.target.value)}
+                  style={{ flex: 1, textTransform: "uppercase" }}
+                />
+                <button
+                  className="btn btn-primary"
+                  onClick={() => loadCustomTicker(customTicker)}
+                  disabled={loadingTicker || !customTicker.trim()}
+                  style={{ padding: "0.5rem 1rem", fontSize: "0.875rem" }}
+                >
+                  {loadingTicker ? "Querying..." : "Load"}
+                </button>
+              </div>
+
+              {tickerError && (
+                <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", padding: "0.5rem 0.75rem", borderRadius: "6px", border: "1px solid rgba(239, 68, 68, 0.2)", backgroundColor: "rgba(239, 68, 68, 0.1)", color: "var(--color-danger)", fontSize: "0.75rem" }}>
+                  <AlertCircle size={14} style={{ flexShrink: 0 }} />
+                  <span>{tickerError}</span>
+                </div>
+              )}
+
+              <div style={{ display: "flex", flexDirection: "column", gap: "0.45rem", marginTop: "0.25rem" }}>
+                <span style={{ fontSize: "0.75rem", fontWeight: 600, color: "var(--text-muted)" }}>Popular Examples:</span>
+                <div style={{ display: "flex", flexWrap: "wrap", gap: "0.4rem" }}>
+                  {[
+                    { label: "🇮🇳 Nifty 50", symbol: "^NSEI" },
+                    { label: "🇮🇳 Sensex", symbol: "^BSESN" },
+                    { label: "🇮🇳 Reliance", symbol: "RELIANCE.NS" },
+                    { label: "🇮🇳 TCS", symbol: "TCS.NS" },
+                    { label: "🇬🇧 BP plc", symbol: "BP.L" },
+                    { label: "🇯🇵 Toyota", symbol: "7203.T" }
+                  ].map((item) => (
+                    <button
+                      key={item.symbol}
+                      onClick={() => {
+                        setCustomTicker(item.symbol);
+                        loadCustomTicker(item.symbol);
+                      }}
+                      className="btn btn-secondary"
+                      style={{ padding: "0.25rem 0.5rem", fontSize: "0.7rem", borderRadius: "4px" }}
+                    >
+                      {item.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Ingest Custom File */}
+          <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+            <h3 style={{ fontSize: "1.25rem", color: "var(--text-primary)" }}>Ingest Custom File</h3>
           
           <div
             className="glass-card"
@@ -300,5 +393,6 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({ onDatasetSelected, t
         </div>
       </div>
     </div>
+  </div>
   );
 };

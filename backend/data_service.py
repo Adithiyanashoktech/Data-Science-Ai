@@ -419,16 +419,23 @@ class DataService:
         """Fetch a dataset from our catalog and return a clean payload."""
         dataset_id = dataset_id.upper()
         
-        if dataset_id in ["TSLA", "AAPL", "NVDA", "SPY"]:
-            df = await self.fetch_stock_data(dataset_id, period)
-            title = f"{dataset_id} Stock Market Data"
-            source = "Yahoo Finance"
-            category = "Financials"
-        elif dataset_id in ["BTC-USD", "ETH-USD"]:
+        if dataset_id in ["BTC-USD", "ETH-USD"] or dataset_id.endswith("-USD"):
             df = await self.fetch_stock_data(dataset_id, period)
             title = f"{dataset_id.split('-')[0]} Cryptocurrency"
             source = "Yahoo Finance"
             category = "Crypto"
+        elif dataset_id in ["TSLA", "AAPL", "NVDA", "SPY"] or "." in dataset_id or dataset_id.startswith("^") or len(dataset_id) <= 6:
+            df = await self.fetch_stock_data(dataset_id, period)
+            if dataset_id.endswith(".NS"):
+                title = f"{dataset_id.replace('.NS', '')} (NSE India) Stock"
+            elif dataset_id.endswith(".BO"):
+                title = f"{dataset_id.replace('.BO', '')} (BSE India) Stock"
+            elif dataset_id.startswith("^"):
+                title = f"{dataset_id.replace('^', '')} Market Index"
+            else:
+                title = f"{dataset_id} Stock Market Data"
+            source = "Yahoo Finance"
+            category = "Financials"
         elif dataset_id == "US_GDP":
             df = await self.worldbank_data_indicator("NY.GDP.MKTP.CD")
             title = "United States Gross Domestic Product GDP"
