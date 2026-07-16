@@ -1,0 +1,33 @@
+# Task List: Data Science AI Agent
+
+- `[x]` Step 1: Environment Setup
+  - `[x]` Create backend `requirements.txt`
+  - `[x]` Initialize virtual environment and install python dependencies with `uv`
+  - `[x]` Initialize Vite React frontend with TypeScript
+  - `[x]` Install frontend packages (`apexcharts`, `react-apexcharts`, `lucide-react`)
+- `[x]` Step 2: Backend Core Services
+  - `[x]` Write `database.py` (SQLAlchemy models for Users, Dashboards, and logs)
+  - `[x]` Write `auth.py` (JWT registration, login, and token verification)
+  - `[x]` Write `data_service.py` (Yahoo Finance, World Bank/FRED indicators, file upload, cleaning, validation)
+- `[x]` Step 3: Backend Analytics & Forecasting
+  - `[x]` Write `analytics_service.py` (trends, correlations, anomalies, seasonality)
+  - `[x]` Write `forecast_service.py` (ARIMA, Exponential Smoothing, custom Prophet-like model, Random Forest)
+  - `[x]` Write `ai_service.py` (Gemini API chat / analytical generation with local NLG fallback)
+  - `[x]` Write `report_service.py` (PDF reportlab builder, Excel/CSV writer)
+- `[x]` Step 4: Backend API Routing
+  - `[x]` Write `main.py` (endpoints for auth, data, analytics, forecast, dashboard state, serving static files)
+- `[x]` Step 5: Frontend Design System & UI Components
+  - `[x]` Create `index.html` and `index.css` (custom dark/light tokens, animations, custom layout)
+  - `[x]` Write authentication components (`AuthModal.tsx`)
+  - `[x]` Write data catalog explorer (`DataExplorer.tsx`)
+  - `[x]` Write ApexCharts interactive widget (`Visualizer.tsx`)
+  - `[x]` Write Forecasting controller (`Forecaster.tsx`)
+  - `[x]` Write AI assistant interface (`ChatAssistant.tsx`)
+- `[x]` Step 6: Frontend Dashboard Grid & App Shell
+  - `[x]` Write `Dashboard.tsx` (drag/drop layout, compare mode, widgets list)
+  - `[x]` Write `App.tsx` (app shell, global state, light/dark mode, routing/tabs)
+- `[x]` Step 7: Build & Integrated Verification
+  - `[x]` Build frontend to static directory
+  - `[x]` Implement local verification script (`verify.py`)
+  - `[x]` Start server and verify layout, visualizations, forecasting, and chat
+  - `[x]` Generate walkthrough documentation with screenshot/recording reference
