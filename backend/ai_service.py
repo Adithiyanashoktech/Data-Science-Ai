@@ -125,6 +125,7 @@ class AIService:
     def _generate_heuristic_insights(self, dataset_meta: Dict[str, Any], analytics_results: Dict[str, Any]) -> Dict[str, Any]:
         """Local heuristic generator to provide rich, structured summaries without requiring an API key."""
         title = dataset_meta.get("title", "Dataset")
+        category = dataset_meta.get("category", "General")
         dataset_id = dataset_meta.get("dataset_id", "").upper()
         stats = analytics_results.get("statistics", {})
         trend = analytics_results.get("trend", {})
@@ -194,55 +195,138 @@ class AIService:
             implications = "Fremont remains a seller's market. Affordability indices imply entry-level buyers will face severe barriers without substantial down-payments."
             
         elif "GDP" in dataset_id:
-            summary = f"US GDP represents a steady, long-term {direction} macroeconomic growth trend, reaching ${last_val/1e12:.2f} Trillion."
+            # Resolve country name from dataset title or symbol
+            country_name = "United States"
+            title_lower = title.lower()
+            if "india" in title_lower or dataset_id.startswith("IN_") or dataset_id.endswith(".NS") or dataset_id.endswith(".BO"):
+                country_name = "India"
+            elif "china" in title_lower or dataset_id.startswith("CN_"):
+                country_name = "China"
+            elif "united kingdom" in title_lower or "uk " in title_lower or dataset_id.startswith("GB_") or dataset_id.endswith(".L"):
+                country_name = "United Kingdom"
+            elif "japan" in title_lower or dataset_id.startswith("JP_") or dataset_id.endswith(".T"):
+                country_name = "Japan"
+            elif "germany" in title_lower or dataset_id.startswith("DE_") or dataset_id.endswith(".DE"):
+                country_name = "Germany"
+            elif "euro area" in title_lower or dataset_id.startswith("EU_"):
+                country_name = "Euro Area"
+            elif "world" in title_lower or dataset_id.startswith("WLD_"):
+                country_name = "Global"
+
+            if last_val >= 1e12:
+                val_str = f"${last_val/1e12:.2f} Trillion"
+            elif last_val >= 1e9:
+                val_str = f"${last_val/1e9:.2f} Billion"
+            else:
+                val_str = f"${last_val:,.2f}"
+                
+            summary = f"{country_name}'s GDP represents a steady, long-term {direction} macroeconomic growth trend, reaching {val_str}."
             what_happened = (
-                f"GDP grew steadily year-over-year, showing a minor drop in 2020 due to pandemic lockdowns, followed by a sharp fiscal-led "
-                f"rebound in 2021-2022. It continues to expand at a steady pace."
+                f"GDP grew steadily over the long-term, showing structural adjustments in response to global trade cycles and fiscal reforms, "
+                f"leading to a current value of {val_str}."
             )
             why_it_happened = (
-                "US economic expansion is driven by consumer spending (constituting ~70%), corporate productivity, technology investments, "
-                "and sustained government spending. The recovery post-2020 was accelerated by massive stimulus injections."
+                f"Economic expansion in {country_name} is propelled by a combination of industrial production, consumer expenditures, corporate investments, "
+                "and governmental fiscal policy initiatives."
             )
             insights = [
-                f"US Gross Domestic Product is currently valued at ${last_val/1e12:.2f} Trillion.",
-                "The linear trend exhibits an R² of {trend.get('r_squared', 0.0):.3f}, signifying highly predictable, stable growth.",
-                "Recessions are highly visible but historically short-lived anomalies in the long-term trajectory."
+                f"{country_name}'s Gross Domestic Product is currently valued at {val_str}.",
+                f"The linear trend exhibits an R² of {trend.get('r_squared', 0.0):.3f}, reflecting structural stability.",
+                "Recessions or supply shocks represent visible but temporary deviations along the growth baseline."
             ]
-            implications = "A stable GDP growth rate provides a positive backdrop for corporate earnings and equity markets, but fiscal deficits remain a key long-term structural concern."
+            implications = f"A resilient GDP growth profile provides a supportive macroeconomic framework for corporate revenue and debt security markets in {country_name}."
             
         elif "INFLATION" in dataset_id:
-            summary = f"US Inflation rate has shown a volatile pattern, currently registering at {last_val:.2f}%."
+            # Resolve country name from dataset title or symbol
+            country_name = "United States"
+            title_lower = title.lower()
+            if "india" in title_lower or dataset_id.startswith("IN_") or dataset_id.endswith(".NS") or dataset_id.endswith(".BO"):
+                country_name = "India"
+            elif "china" in title_lower or dataset_id.startswith("CN_"):
+                country_name = "China"
+            elif "united kingdom" in title_lower or "uk " in title_lower or dataset_id.startswith("GB_") or dataset_id.endswith(".L"):
+                country_name = "United Kingdom"
+            elif "japan" in title_lower or dataset_id.startswith("JP_") or dataset_id.endswith(".T"):
+                country_name = "Japan"
+            elif "germany" in title_lower or dataset_id.startswith("DE_") or dataset_id.endswith(".DE"):
+                country_name = "Germany"
+            elif "euro area" in title_lower or dataset_id.startswith("EU_"):
+                country_name = "Euro Area"
+            elif "world" in title_lower or dataset_id.startswith("WLD_"):
+                country_name = "Global"
+
+            summary = f"{country_name}'s inflation rate has shown fluctuating patterns, currently registering at {last_val:.2f}%."
             what_happened = (
-                f"Inflation remained low and stable (near 2%) for most of the 2010s, spiked dramatically to a peak of 8% in 2022, "
-                f"and has since steadily receded back toward the Federal Reserve's target."
+                f"Inflation rates experienced shifts, moving from historical levels to a current reading of {last_val:.2f}%, "
+                f"while maintaining a historical average of {mean_val:.2f}%."
             )
             why_it_happened = (
-                "The 2022 inflation spike was triggered by pandemic supply chain blockages, loose monetary policy, direct stimulus checks, "
-                "and energy shocks from the Ukraine conflict. The cooling of inflation was driven by the Fed's aggressive rate hikes."
+                f"Consumer price index swings in {country_name} are driven by energy price volatility, currency fluctuations, supply chain "
+                "bottlenecks, and credit expansion cycles adjusted by central bank interest rate policies."
             )
             insights = [
-                f"The current inflation reading of {last_val:.2f}% is close to the historical median of {mean_val:.2f}%.",
-                f"The 2022 reading stands out as a significant outlier, representing a 3-standard-deviation shock.",
-                "Correlations indicate that inflation spikes correspond directly to changes in interest/mortgage rates."
+                f"The current inflation reading of {last_val:.2f}% compares to a historical average of {mean_val:.2f}%.",
+                f"Outlier spikes reflect supply shocks, while cooling trends represent cooling demand or tighter credit conditions.",
+                "Correlations indicate that inflation shifts directly affect consumer purchasing power and municipal interest rates."
             ]
-            implications = "As inflation normalizes, the Federal Reserve gains flexibility to adjust interest rates, supporting debt markets and mortgage refinancing."
+            implications = f"Managing price stability is critical. Persistent inflation limits the {country_name} central bank's capacity to adjust lending rates without risking capital flights."
             
         else:
+            category_lower = category.lower()
             summary = f"The {title} dataset exhibits a {direction} trend, ending at a value of {last_val:,.2f}."
             what_happened = (
                 f"Analyzing the variable {column} over time reveals a general {direction} pattern, moving from a minimum of {stats.get('min'):,.2f} "
                 f"to a maximum of {stats.get('max'):,.2f}. The historical average is {mean_val:,.2f}."
             )
-            why_it_happened = (
-                "The trends and variance observed in the dataset reflect cyclic behavior, structural growth drivers, and occasional "
-                f"statistical anomalies (we detected {len(anomalies)} anomalies in the data series)."
-            )
+            
+            if category_lower == "healthcare":
+                why_it_happened = (
+                    "Trends in public health outcomes directly reflect national investments in medical infrastructures, healthcare budgets, "
+                    "widespread access to modern vaccine protocols, sanitation improvements, and pharmaceutical developments."
+                )
+                implications = (
+                    "Policy planners and healthcare administrators should leverage these trends to project future demographics, "
+                    "manage hospital capacities, and optimize funding allocations for disease prevention programs."
+                )
+            elif category_lower == "energy":
+                why_it_happened = (
+                    "Energy demand and carbon footprints correspond closely to global manufacturing indices, regulatory carbon cap laws, "
+                    "shifting fossil fuel pricing regimes, and efficiency gains in solar, wind, and battery technologies."
+                )
+                implications = (
+                    "These outcomes track the rate of the global green transition. Corporate entities should align their supply chain logistics "
+                    "and sustainability benchmarks to adapt to these regulatory decarbonization curves."
+                )
+            elif category_lower == "transportation":
+                why_it_happened = (
+                    "Freight shipping metrics and consumer passenger volumes are highly responsive to business cycle expansion, "
+                    "international trade tariff agreements, urbanization patterns, and general disposable consumer income levels."
+                )
+                implications = (
+                    "Municipal transit authorities and commercial logisticians should use these data points to plan highway, port, and runway "
+                    "expansions and avoid capacity bottleneck zones."
+                )
+            elif category_lower == "technology":
+                why_it_happened = (
+                    "The expansion of technological metrics (such as internet access or cellular links) is propelled by hardware manufacturing "
+                    "deflation, telecommunications fiber infrastructure rollouts, and the growth of consumer digital banking and e-commerce."
+                )
+                implications = (
+                    "Digital readiness signals market entry opportunities. High-tech firms should use these trends to guide geographic product "
+                    "expansions, remote service offerings, and capital investments."
+                )
+            else:
+                why_it_happened = (
+                    "The trends and variance observed in the dataset reflect cyclic behavior, structural growth drivers, and occasional "
+                    f"statistical anomalies (we detected {len(anomalies)} anomalies in the data series)."
+                )
+                implications = "Stakeholders should use these trends to project budget growth, resource requirements, and risk thresholds."
+            
             insights = [
                 f"The primary variable has a standard deviation of {stats.get('std'):,.2f}, representing moderate variance.",
                 f"The linear regression fit explains {trend.get('r_squared', 0.0)*100:.1f}% of the variations.",
                 f"The most recent observation ({last_val:,.2f}) is in the {direction} direction compared to the historical average."
             ]
-            implications = "Stakeholders should use these trends to project budget growth, resource requirements, and risk thresholds."
             
         return {
             "summary": summary,
@@ -300,6 +384,7 @@ class AIService:
             )
             
         elif "why" in q_lower:
+            category_lower = active_dataset_meta.get("category", "").lower()
             if "housing" in q_lower or "fremont" in q_lower or "rent" in q_lower:
                 return (
                     "Fremont housing prices and rental markets increased primarily due to:\n"
@@ -327,6 +412,34 @@ class AIService:
                     "2. **Fiscal Stimulus:** Trillions of dollars injected directly to households boosted consumer demand.\n"
                     "3. **Energy Shocks:** Geopolitical tensions caused crude oil and food prices to spike.\n"
                     "It has receded because the Federal Reserve raised interest rates from 0.25% to 5.25%, cooling consumer credit and demand."
+                )
+            elif category_lower == "healthcare":
+                return (
+                    f"Healthcare indicators for **{title}** are driven by:\n"
+                    "1. **Public Health Budgets:** Direct national investments in hospitals, medical staff, and pharmaceutical procurement.\n"
+                    "2. **Quality of Life Enhancements:** Long-term reductions in infant mortality, better sanitation, clean drinking water access, and nutritional standards.\n"
+                    "3. **Medical Innovation:** Global access to advanced diagnostics, immunizations, and chronic disease management therapies."
+                )
+            elif category_lower == "energy":
+                return (
+                    f"Energy and emission dynamics in **{title}** are influenced by:\n"
+                    "- **Decarbonization Policies:** Global treaties and national subsidies pushing for wind, solar, and nuclear power capacity additions.\n"
+                    "- **Economic Activity:** High industrial output directly correlates with energy demand spikes and increased fossil fuel consumption.\n"
+                    "- **Technology Advances:** Declines in battery manufacturing costs and photovoltaic cell efficiencies making green energy commercially viable."
+                )
+            elif category_lower == "technology":
+                return (
+                    f"Technological adoption metrics in **{title}** are propelled by:\n"
+                    "- **Infrastructure Buildouts:** 4G/5G cell towers and fiber optic cable rollouts bridging the digital divide.\n"
+                    "- **Hardware Affordability:** Declining consumer costs of smartphones, tablets, and personal computing nodes.\n"
+                    "- **Digital Economy Growth:** Increased reliance on remote work, e-commerce platforms, cloud architectures, and digital banking."
+                )
+            elif category_lower == "transportation":
+                return (
+                    f"Transportation and logistics volumes for **{title}** react to:\n"
+                    "- **Globalization and Trade:** Changes in international trade agreements, cargo tariffs, and marine container port throughput.\n"
+                    "- **Urbanization:** Denser municipal populations requiring higher investment in public transit networks and commuter roadways.\n"
+                    "- **Consumer Mobility:** Air travel demand varies with disposable incomes, vacation seasons, and business travel cycles."
                 )
             else:
                 return f"The movements in **{title}** are driven by a combination of long-term structural trends (slope: {trend.get('slope'):.4f}) and short-term volatility. Review the anomalies list to see exact timestamps of unexplained spikes or drops."
