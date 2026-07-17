@@ -49,6 +49,11 @@ Because Windows Application Control policy blocked standard Python `_ssl` binary
 - **Safe Date String Conversion**: Modified `backend/main.py` and `backend/data_service.py` to check if a dataset's index is a datetime timestamp (using `hasattr(index, "strftime")`) before formatting. This prevents crashes when users upload custom tables with standard text/integer indices.
 - **Pandas 3.0 fillna Compatibility**: Replaced the legacy `fillna(method='bfill')` keyword argument in `backend/analytics_service.py` with modern, native `.bfill().ffill()` calls, resolving warnings and ensuring compatibility under modern environment specifications.
 - **AI Insights Safety Formatting**: Added a `safe_fmt` converter at the top of `backend/ai_service.py` that intercepts numerical formats like `:,.2f` or `:.4f` and handles `None`, `NaN`, or infinite values gracefully. This prevents `TypeError` and subsequent `500 Internal Server Error` crashes when generating AI summaries or chatting about sparse, custom-uploaded datasets (such as `IN_INTERNET_USERS`) that lack standard stock metrics.
+- **Dynamic Chart Render Resolution**: Refactored the `<ReactApexChart>` instantiation inside `frontend/src/components/Visualizer.tsx` and `frontend/src/components/Dashboard.tsx` to dynamically resolve the `type` attribute. Previously, the renderer was hardcoded to fallback to `"line"`, which drew Area, Bar, Histogram, and Candlestick series as lines. Now, all chart types render in their native, high-fidelity formats.
+- **Visualizer Enhancement & Safety Checks**: 
+  - Added empty data-array safety checks inside the Box Plot generator to prevent index-lookup crashes.
+  - Added dynamic stroke-width calculations mapping to each series type. This keeps line elements (like moving average lines and trend lines) visible at `2.5` or `3` thickness on top of Bar and Scatter charts, while preventing ugly outlines on individual bars.
+  - Enhanced the Pearson Correlation heatmap options with clean text label mappings, variable filters, and a specialized, high-fidelity color range scale representing positive/negative correlation strengths.
 
 ### 4. Google Sheets & Excel Export Updates
 - **Branding Rename**: Changed app header brand titles from "Antigravity" to "Data Ai" in both the HTML layout shell and metadata.
