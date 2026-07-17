@@ -204,13 +204,17 @@ export const Visualizer: React.FC<VisualizerProps> = ({ datasetMeta, rawData, on
         }))
       }];
       
-      const options = getBaseOptions(dates);
+      const options = getBaseOptions(dates, candleSeries);
       return { series: candleSeries, options };
     }
     
     if (chartType === "correlation" && analytics && analytics.correlations) {
-      // Build matrix data for heatmap
-      const cols = datasetMeta.columns.filter(c => c !== "date");
+      // Build matrix data for heatmap (filter out non-numeric index fields)
+      const cols = datasetMeta.columns.filter(c => 
+        c.toLowerCase() !== "date" && 
+        c.toLowerCase() !== "id" && 
+        c.toLowerCase() !== "index"
+      );
       const seriesData: any[] = [];
       
       cols.forEach(c1 => {
@@ -219,7 +223,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({ datasetMeta, rawData, on
           const corr = analytics.correlations.find(
             (cr: any) => (cr.var1 === c1 && cr.var2 === c2) || (cr.var1 === c2 && cr.var2 === c1)
           );
-          return { x: c2, y: corr ? corr.value : 0.0 };
+          return { x: c2, y: corr ? parseFloat(corr.value.toFixed(2)) : 0.0 };
         });
         seriesData.push({ name: c1, data: rowData });
       });
@@ -230,10 +234,38 @@ export const Visualizer: React.FC<VisualizerProps> = ({ datasetMeta, rawData, on
           background: "transparent",
           toolbar: { show: false }
         },
-        theme: { mode: document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light" },
-        dataLabels: { enabled: true, style: { colors: ["#fff"] } },
+        theme: { mode: document.documentElement.getAttribute("data-theme") === "dark" ? ("dark" as const) : ("light" as const) },
+        dataLabels: { 
+          enabled: true, 
+          style: { colors: ["#ffffff"], fontSize: "10px", fontWeight: 600 },
+          formatter: (val: any) => typeof val === "number" ? val.toFixed(2) : String(val)
+        },
         colors: [themeColor],
-        title: { text: "Pearson Correlation Coefficient Matrix", style: { fontFamily: "var(--font-header)", color: "var(--text-primary)" } }
+        title: { 
+          text: "Pearson Correlation Matrix", 
+          align: "center" as const,
+          style: { fontFamily: "var(--font-header)", color: "var(--text-primary)", fontSize: "13px", fontWeight: 600 } 
+        },
+        xaxis: {
+          categories: cols,
+          labels: { style: { colors: "var(--text-secondary)", fontSize: "10px" } }
+        },
+        yaxis: {
+          labels: { style: { colors: "var(--text-secondary)", fontSize: "10px" } }
+        },
+        plotOptions: {
+          heatmap: {
+            colorScale: {
+              ranges: [
+                { from: -1.0, to: -0.5, color: "#ef4444", name: "Strong Neg" },
+                { from: -0.5, to: -0.1, color: "#fca5a5", name: "Weak Neg" },
+                { from: -0.1, to: 0.1, color: "var(--bg-tertiary)", name: "Neutral" },
+                { from: 0.1, to: 0.5, color: "#93c5fd", name: "Weak Pos" },
+                { from: 0.5, to: 1.0, color: themeColor, name: "Strong Pos" }
+              ]
+            }
+          }
+        }
       };
 
       return { series: seriesData, options };
@@ -273,7 +305,9 @@ export const Visualizer: React.FC<VisualizerProps> = ({ datasetMeta, rawData, on
     }
 
     if (chartType === "box") {
-      const values = rawData.map(r => r[selectedColumn]).filter(v => v !== null).sort((a,b) => a-b);
+      const values = rawData.map(r => r[selectedColumn]).filter(v => v !== null && !isNaN(v)).sort((a,b) => a-b);
+      if (values.length === 0) return { series: [], options: {} };
+      
       const q1 = values[Math.floor(values.length * 0.25)];
       const median = values[Math.floor(values.length * 0.5)];
       const q3 = values[Math.floor(values.length * 0.75)];
@@ -289,10 +323,19 @@ export const Visualizer: React.FC<VisualizerProps> = ({ datasetMeta, rawData, on
       }];
 
       const options = {
-        chart: { type: "boxPlot" as const, background: "transparent" },
+        chart: { type: "boxPlot" as const, background: "transparent", toolbar: { show: false } },
+        theme: { mode: document.documentElement.getAttribute("data-theme") === "dark" ? ("dark" as const) : ("light" as const) },
         colors: [themeColor],
-        yaxis: { labels: { style: { colors: "var(--text-secondary)" } } },
-        xaxis: { labels: { style: { colors: "var(--text-secondary)" } } }
+        yaxis: { labels: { style: { colors: "var(--text-secondary)", fontSize: "11px" } } },
+        xaxis: { labels: { style: { colors: "var(--text-secondary)", fontSize: "11px" } } },
+        plotOptions: {
+          boxPlot: {
+            colors: {
+              upper: themeColor,
+              lower: themeColor + "33"
+            }
+          }
+        }
       };
       
       return { series, options };
@@ -327,7 +370,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({ datasetMeta, rawData, on
       mainSeries.push({ name: "Linear Trend Line", type: "line", data: trendData });
     }
 
-    const options = getBaseOptions(dates);
+    const options = getBaseOptions(dates, mainSeries);
     return { series: mainSeries, options };
   };
 
@@ -344,7 +387,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({ datasetMeta, rawData, on
     return ma;
   };
 
-  const getBaseOptions = (dates: string[]) => {
+  const getBaseOptions = (dates: string[], seriesList: any[]) => {
     const isDark = document.documentElement.getAttribute("data-theme") === "dark";
     
     // Add Anomaly Annotations
@@ -372,7 +415,14 @@ export const Visualizer: React.FC<VisualizerProps> = ({ datasetMeta, rawData, on
         animations: { enabled: true, easing: "easeinout" as const, speed: 800 }
       },
       annotations: annotations,
-      stroke: { width: chartType === "line" || chartType === "area" ? [3, 2, 2, 2, 2] : [0], curve: "smooth" as const },
+      stroke: { 
+        width: seriesList.map(s => {
+          if (s.type === "line") return 2.5;
+          if (s.type === "area") return 3;
+          return 0; // bar, scatter, etc.
+        }), 
+        curve: "smooth" as const 
+      },
       colors: [themeColor, "#a7f3d0", "#8b5cf6", "#ec4899", "#d97706"],
       fill: {
         type: chartType === "area" ? "gradient" : "solid",
@@ -541,7 +591,7 @@ export const Visualizer: React.FC<VisualizerProps> = ({ datasetMeta, rawData, on
 
           <div style={{ flex: 1, position: "relative" }}>
             {series.length > 0 ? (
-              <ReactApexChart options={options as any} series={series} type={chartType === "correlation" ? "heatmap" : chartType === "box" ? "boxPlot" : "line"} height={360} />
+              <ReactApexChart options={options as any} series={series} type={chartType === "correlation" ? "heatmap" : chartType === "box" ? "boxPlot" : chartType === "histogram" ? "bar" : chartType} height={360} />
             ) : (
               <div style={{ position: "absolute", top: "50%", left: "50%", transform: "translate( -50%, -50% )", color: "var(--text-muted)" }}>
                 Generating visual parameters...

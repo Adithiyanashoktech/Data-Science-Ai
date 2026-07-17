@@ -201,7 +201,7 @@ export const Dashboard: React.FC<DashboardProps> = ({ token, onSelectDataset }) 
       xaxis: { categories: dates }
     };
 
-    return <ReactApexChart options={options} series={[{ name: w.column, data: values }]} type={w.chart_type === "area" ? "area" : "line"} height={140} />;
+    return <ReactApexChart options={options} series={[{ name: w.column, data: values }]} type={w.chart_type === "area" ? "area" : w.chart_type === "bar" ? "bar" : "line"} height={140} />;
   };
 
   const getCompareChartData = () => {
