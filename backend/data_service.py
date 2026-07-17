@@ -424,17 +424,55 @@ class DataService:
             title = f"{dataset_id.split('-')[0]} Cryptocurrency"
             source = "Yahoo Finance"
             category = "Crypto"
-        elif len(dataset_id.split('_')) == 2 and dataset_id.split('_')[1] in ["GDP", "INFLATION", "UNEMPLOYMENT"]:
-            parts = dataset_id.split('_')
-            country_code = parts[0].lower()
-            indicator_type = parts[1]
+        elif dataset_id.partition('_')[2] in [
+            "GDP", "INFLATION", "UNEMPLOYMENT", 
+            "LIFE_EXPECTANCY", "HEALTH_EXPENDITURE",
+            "AIR_PASSENGERS", "PORT_TRAFFIC",
+            "RENEWABLE_ENERGY", "CO2_EMISSIONS", "ELECTRICITY_ACCESS",
+            "INTERNET_USERS", "MOBILE_SUBS", "HITECH_EXPORTS",
+            "POPULATION", "FOREST_AREA"
+        ]:
+            country_code, _, indicator_type = dataset_id.partition('_')
+            country_code = country_code.lower()
             
             indicator_map = {
                 "GDP": "NY.GDP.MKTP.CD",
                 "INFLATION": "FP.CPI.TOTL.ZG",
-                "UNEMPLOYMENT": "SL.UEM.TOTL.ZS"
+                "UNEMPLOYMENT": "SL.UEM.TOTL.ZS",
+                "LIFE_EXPECTANCY": "SP.DYN.LE00.IN",
+                "HEALTH_EXPENDITURE": "SH.XPD.CHEX.GD.ZS",
+                "AIR_PASSENGERS": "IS.AIR.PSGR",
+                "PORT_TRAFFIC": "IS.SHP.GCON.TO",
+                "RENEWABLE_ENERGY": "EG.FEC.RNEW.ZS",
+                "CO2_EMISSIONS": "EN.ATM.CO2E.PC",
+                "ELECTRICITY_ACCESS": "EG.ELC.ACCS.ZS",
+                "INTERNET_USERS": "IT.NET.USER.ZS",
+                "MOBILE_SUBS": "IT.CEL.SETS.P2",
+                "HITECH_EXPORTS": "TX.VAL.TECH.MF.ZS",
+                "POPULATION": "SP.POP.TOTL",
+                "FOREST_AREA": "AG.LND.FRST.ZS"
             }
+            
+            category_map = {
+                "GDP": "Economics",
+                "INFLATION": "Economics",
+                "UNEMPLOYMENT": "Economics",
+                "LIFE_EXPECTANCY": "Healthcare",
+                "HEALTH_EXPENDITURE": "Healthcare",
+                "AIR_PASSENGERS": "Transportation",
+                "PORT_TRAFFIC": "Transportation",
+                "RENEWABLE_ENERGY": "Energy",
+                "CO2_EMISSIONS": "Energy",
+                "ELECTRICITY_ACCESS": "Energy",
+                "INTERNET_USERS": "Technology",
+                "MOBILE_SUBS": "Technology",
+                "HITECH_EXPORTS": "Technology",
+                "POPULATION": "Climate",
+                "FOREST_AREA": "Climate"
+            }
+            
             indicator = indicator_map[indicator_type]
+            category = category_map[indicator_type]
             
             df = await self.fetch_worldbank_data(indicator, country_code)
             
@@ -449,11 +487,22 @@ class DataService:
             title_map = {
                 "GDP": f"{country_display} Gross Domestic Product GDP",
                 "INFLATION": f"{country_display} Inflation Rate Annual %",
-                "UNEMPLOYMENT": f"{country_display} Unemployment Rate"
+                "UNEMPLOYMENT": f"{country_display} Unemployment Rate",
+                "LIFE_EXPECTANCY": f"{country_display} Life Expectancy at Birth",
+                "HEALTH_EXPENDITURE": f"{country_display} Health Expenditure (% of GDP)",
+                "AIR_PASSENGERS": f"{country_display} Air Transport Passengers Carried",
+                "PORT_TRAFFIC": f"{country_display} Container Port Traffic (TEU)",
+                "RENEWABLE_ENERGY": f"{country_display} Renewable Energy Share (%)",
+                "CO2_EMISSIONS": f"{country_display} CO2 Emissions (Metric Tons/Capita)",
+                "ELECTRICITY_ACCESS": f"{country_display} Access to Electricity (% of Pop)",
+                "INTERNET_USERS": f"{country_display} Internet Usage (% of Pop)",
+                "MOBILE_SUBS": f"{country_display} Mobile Cellular Subscriptions",
+                "HITECH_EXPORTS": f"{country_display} High-Tech Exports (% of Manuf)",
+                "POPULATION": f"{country_display} Total Population",
+                "FOREST_AREA": f"{country_display} Forest Area (% of Land Area)"
             }
             title = title_map[indicator_type]
             source = "World Bank"
-            category = "Economics"
         elif dataset_id in ["TSLA", "AAPL", "NVDA", "SPY"] or "." in dataset_id or dataset_id.startswith("^") or len(dataset_id) <= 6:
             df = await self.fetch_stock_data(dataset_id, period)
             if dataset_id.endswith(".NS"):
