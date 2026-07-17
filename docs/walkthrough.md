@@ -48,6 +48,7 @@ Because Windows Application Control policy blocked standard Python `_ssl` binary
 ### 3. Date Parsing & Compatibility Fixes
 - **Safe Date String Conversion**: Modified `backend/main.py` and `backend/data_service.py` to check if a dataset's index is a datetime timestamp (using `hasattr(index, "strftime")`) before formatting. This prevents crashes when users upload custom tables with standard text/integer indices.
 - **Pandas 3.0 fillna Compatibility**: Replaced the legacy `fillna(method='bfill')` keyword argument in `backend/analytics_service.py` with modern, native `.bfill().ffill()` calls, resolving warnings and ensuring compatibility under modern environment specifications.
+- **AI Insights Safety Formatting**: Added a `safe_fmt` converter at the top of `backend/ai_service.py` that intercepts numerical formats like `:,.2f` or `:.4f` and handles `None`, `NaN`, or infinite values gracefully. This prevents `TypeError` and subsequent `500 Internal Server Error` crashes when generating AI summaries or chatting about sparse, custom-uploaded datasets (such as `IN_INTERNET_USERS`) that lack standard stock metrics.
 
 ### 4. Google Sheets & Excel Export Updates
 - **Branding Rename**: Changed app header brand titles from "Antigravity" to "Data Ai" in both the HTML layout shell and metadata.
