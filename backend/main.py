@@ -149,14 +149,6 @@ def list_datasets():
         {"id": "US_UNEMPLOYMENT", "title": "United States Unemployment", "category": "Economics", "icon": "users", "description": "National unemployment rate percentages mapped over years."},
         {"id": "FREMONT_HOUSING", "title": "Fremont Housing Trends", "category": "Real Estate", "icon": "home", "description": "Home prices, monthly inventories, mortgage rates, and affordability in Fremont, CA."},
         {"id": "CALIFORNIA_RENT", "title": "California Rental Prices", "category": "Real Estate", "icon": "key", "description": "Rental price changes across major metropolitan regions in California."},
-        {"id": "IN_LIFE_EXPECTANCY", "title": "India Life Expectancy", "category": "Healthcare", "icon": "heart", "description": "Average life expectancy at birth in India compiled annually by the World Bank."},
-        {"id": "US_HEALTH_EXPENDITURE", "title": "US Health Expenditure", "category": "Healthcare", "icon": "activity", "description": "Total healthcare expenditures as a percentage of US GDP."},
-        {"id": "US_AIR_PASSENGERS", "title": "US Air Transport Passengers", "category": "Transportation", "icon": "navigation", "description": "Annual count of domestic and international air passengers carried by US carriers."},
-        {"id": "US_RENEWABLE_ENERGY", "title": "US Renewable Energy Share", "category": "Energy", "icon": "zap", "description": "Renewable energy consumption percentage of total final energy usage in the United States."},
-        {"id": "WLD_CO2_EMISSIONS", "title": "Global CO2 Emissions", "category": "Energy", "icon": "thermometer", "description": "Average carbon dioxide emissions measured in metric tons per capita globally."},
-        {"id": "IN_INTERNET_USERS", "title": "India Internet Usage", "category": "Technology", "icon": "globe", "description": "Percentage of the Indian population actively using internet services."},
-        {"id": "US_HITECH_EXPORTS", "title": "US High-Tech Exports", "category": "Technology", "icon": "cpu", "description": "High-technology exports (computers, aerospace, pharmaceuticals) as % of manufactured exports."},
-        {"id": "WLD_POPULATION", "title": "World Total Population", "category": "Climate", "icon": "users", "description": "Total global human population census records tracked annually by the World Bank."},
         {"id": "GLOBAL_TEMP", "title": "Global Temp Anomalies", "category": "Climate", "icon": "thermometer", "description": "NASA records mapping annual deviations in global surface temperatures."}
     ]
 

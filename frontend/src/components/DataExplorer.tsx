@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Search, UploadCloud, TrendingUp, Coins, Globe, Home, Thermometer, Database, Check, AlertCircle, Heart, Navigation, Zap, Cpu } from "lucide-react";
+import { Search, UploadCloud, TrendingUp, Coins, Globe, Home, Thermometer, Database, Check, AlertCircle } from "lucide-react";
 
 interface DatasetInfo {
   id: string;
@@ -52,7 +52,7 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({ onDatasetSelected, t
     }
   };
 
-  const categories = ["All", "Financials", "Crypto", "Economics", "Real Estate", "Healthcare", "Transportation", "Energy", "Technology", "Climate"];
+  const categories = ["All", "Financials", "Crypto", "Economics", "Real Estate", "Climate"];
 
   useEffect(() => {
     fetch("/api/datasets")
@@ -147,10 +147,6 @@ export const DataExplorer: React.FC<DataExplorerProps> = ({ onDatasetSelected, t
       case "globe": return <Globe size={18} />;
       case "home": return <Home size={18} />;
       case "thermometer": return <Thermometer size={18} />;
-      case "heart": return <Heart size={18} />;
-      case "navigation": return <Navigation size={18} />;
-      case "zap": return <Zap size={18} />;
-      case "cpu": return <Cpu size={18} />;
       default: return <Database size={18} />;
     }
   };
