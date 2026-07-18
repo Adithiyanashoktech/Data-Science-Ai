@@ -145,6 +145,7 @@ class AIService:
         stats = analytics_results.get("statistics", {})
         trend = analytics_results.get("trend", {})
         anomalies = analytics_results.get("anomalies", [])
+        column = analytics_results.get("column", "Value")
         
         last_val = stats.get("last_value")
         mean_val = stats.get("mean")
@@ -387,7 +388,7 @@ class AIService:
         else:
             return (
                 f"I am here to assist with **{title}**. "
-                f"Your active variable is **{analytics_results.get('column')}**, with a current value of **{last_val:,.2f}**. "
+                f"Your active variable is **{analytics_results.get('column')}**, with a current value of **{safe_fmt(last_val)}**. "
                 f"You can ask me questions about trends ('Why did it rise?'), forecasts ('Will it continue to grow?'), "
                 f"or request an explanation of the specific anomalies listed in the widgets."
             )
